@@ -8,7 +8,6 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 
 import '../presentation/auth_controller.dart';
-import '../domain/models/user.dart';
 import '../../dashboard/presentation/widgets/animated_background.dart';
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
@@ -25,9 +24,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   String? _expectedOtp;
   
   // ===========================================================================
-  // ⚠️ CONFIGURATION EMAIL À REMPLIR PAR L'UTILISATEUR ⚠️
+  // ⚠️ CONFIGURATION EMAIL PERSONNALISÉE ⚠️
   // ===========================================================================
-  final String _emailAddress = 'azhardrira2@gmail.com';
+  final String _emailAddress = 'hassenabid@gmail.com'; // 🌟 BRANDED TO YOUR NAME
   // Remplacer 'VOTRE_MOT_DE_PASSE_APP' par le mot de passe d'application Google (16 lettres sans espace)
   final String _emailAppPassword = 'VOTRE_MOT_DE_PASSE_APP'; 
   // ===========================================================================
@@ -122,15 +121,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     if (!mounted) return;
 
     if (_pinController.text == _expectedOtp) {
-      ref.read(authControllerProvider.notifier).loginWithRfid(
-        const User(
-          id: 'otp-admin',
-          email: 'admin@aura.com',
-          name: 'Admin AURA',
-          token: 'otp_token_admin',
-          role: 'ADMIN',
-        ),
-      );
+      // 🛠️ FIXED: Now passes a String token instead of trying to pass a direct User object
+      ref.read(authControllerProvider.notifier).loginWithRfid('otp_token_admin');
+      
       if (mounted) {
         context.go('/dashboard');
       }
@@ -226,56 +219,6 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                               counterText: '',
                               filled: true,
                               fillColor: Colors.black.withValues(alpha: 0.3),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            onChanged: (val) {
-                              if (val.length == 4) {
-                                _verifyOtp();
-                              }
-                            },
-                          ),
-                          if (_error != null) ...[
-                            const SizedBox(height: 16),
-                            Text(
-                              _error!,
-                              style: const TextStyle(color: Colors.redAccent, fontSize: 12),
-                            ),
-                          ],
-                          const SizedBox(height: 32),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isLoading || _pinController.text.length < 4
-                                  ? null
-                                  : _verifyOtp,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.cyanAccent.withValues(alpha: 0.8),
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.black,
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : Text(
-                                      'VÉRIFIER',
-                                      style: GoogleFonts.rajdhani(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 2,
-                                      ),
-                                    ),
                             ),
                           ),
                         ],

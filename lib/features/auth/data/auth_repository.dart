@@ -37,6 +37,22 @@ class AuthRepository {
     }
   }
 
+  Future<User> loginWithRfid(String rfidToken) async {
+    try {
+      // Mock implementation for the RFID check
+      await Future.delayed(const Duration(seconds: 1));
+      return const User(
+        id: '456',
+        email: 'worker@thermoplay.com',
+        name: 'Hassen Abid',
+        token: 'mock_rfid_jwt_token',
+        role: 'worker', // Authenticates as worker upon badge scan
+      );
+    } catch (e) {
+      throw Exception('Failed RFID Authentication: $e');
+    }
+  }
+
   Future<void> logout() async {
     // In a real app: await _dio.post('/logout');
     await Future.delayed(const Duration(milliseconds: 500));

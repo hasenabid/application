@@ -22,6 +22,17 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
     }
   }
 
+  Future<void> loginWithRfid(String rfidToken) async {
+    state = const AsyncLoading();
+    try {
+      // This calls your repository to verify the physical RFID scan badge
+      final user = await _authRepository.loginWithRfid(rfidToken);
+      state = AsyncData(user);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
   Future<void> logout() async {
     state = const AsyncLoading();
     try {

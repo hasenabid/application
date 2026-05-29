@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 
 import '../../../zones/presentation/zones_controller.dart';
-import '../../../zones/domain/models/aura_zone.dart';
+import '../../../zones/domain/models/thermoplay_zone.dart';//aura_zone.dart';
 
 class ModernZoneCard extends StatefulWidget {
-  final AuraZone zone;
+  final ThermoplayZone zone;
   final WidgetRef ref;
 
   const ModernZoneCard({super.key, required this.zone, required this.ref});

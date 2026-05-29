@@ -6,7 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../auth/presentation/auth_controller.dart';
 import '../../zones/presentation/zones_controller.dart';
-import '../../zones/domain/models/aura_zone.dart';
+// 🛠️ CHANGED: Import the correct ThermoplayZone model definition file
+import '../../zones/domain/models/thermoplay_zone.dart'; 
 import '../../zones/presentation/temp_request_screen.dart';
 import 'widgets/animated_background.dart';
 import 'widgets/modern_zone_card.dart';
@@ -128,7 +129,7 @@ class WorkerDashboardScreen extends ConsumerWidget {
   Widget _buildZonesGrid(
     BuildContext context,
     WidgetRef ref,
-    List<AuraZone> zones,
+    List<ThermoplayZone> zones, // 🛠️ FIXED: Parameter changed from List<AuraZone> to match your state data type
   ) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 

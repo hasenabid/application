@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/zones/domain/models/aura_zone.dart';
+import '../../features/zones/domain/models/thermoplay_zone.dart';
 
 // ============================================================================
 // ⚠️ REMPLACER PAR VOTRE CLÉ API GEMINI (https://aistudio.google.com/apikey)
@@ -48,7 +48,7 @@ class GeminiService {
     );
   }
 
-  String _buildSystemContext(List<AuraZone> zones) {
+  String _buildSystemContext(List<ThermoplayZone> zones) {
     final zonesInfo = zones.map((z) {
       return '- ${z.name} (id: ${z.id}): '
           'T° actuelle=${z.currentTemperature.toInt()}°C, '
@@ -86,7 +86,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.
   }
 
   /// Traite une commande vocale avec le contexte des zones
-  Future<AiResponse> processCommand(String userCommand, List<AuraZone> zones) async {
+  Future<AiResponse> processCommand(String userCommand, List<ThermoplayZone> zones) async {
     // Mode démo si la clé n'est pas configurée
     if (!isConfigured) {
       return _processDemoMode(userCommand, zones);
@@ -144,7 +144,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.
   }
 
   /// Mode démo sans clé API — intelligence locale basique
-  AiResponse _processDemoMode(String command, List<AuraZone> zones) {
+  AiResponse _processDemoMode(String command, List<ThermoplayZone> zones) {
     final lower = command.toLowerCase();
 
     // Question sur l'état
