@@ -46,13 +46,18 @@ class AuthRepository {
             email: '${data['role'].toString().toLowerCase()}@aura.com',
             name: data['name'] ?? 'Utilisateur RFID',
             token: data['token'] ?? '',
-            role: data['role'] ?? 'WORKER', // Extracts 'ADMIN' or 'WORKER' directly from Java
+            role:
+                data['role'] ??
+                'WORKER', // Extracts 'ADMIN' or 'WORKER' directly from Java
           );
         }
       }
       return null;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Erreur lors du sondage du serveur backend RFID.');
+      throw Exception(
+        e.response?.data['message'] ??
+            'Erreur lors du sondage du serveur backend RFID.',
+      );
     }
   }
 

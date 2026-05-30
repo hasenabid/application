@@ -14,7 +14,8 @@ class OtpVerificationScreen extends ConsumerStatefulWidget {
   const OtpVerificationScreen({super.key});
 
   @override
-  ConsumerState<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+  ConsumerState<OtpVerificationScreen> createState() =>
+      _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
@@ -22,13 +23,14 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   bool _isLoading = false;
   String? _error;
   String? _expectedOtp;
-  
+
   // ===========================================================================
   // ⚠️ CONFIGURATION EMAIL PERSONNALISÉE ⚠️
   // ===========================================================================
-  final String _emailAddress = 'hassenabid@gmail.com'; // 🌟 BRANDED TO YOUR NAME
+  final String _emailAddress =
+      'hassenabid@gmail.com'; // 🌟 BRANDED TO YOUR NAME
   // Remplacer 'VOTRE_MOT_DE_PASSE_APP' par le mot de passe d'application Google (16 lettres sans espace)
-  final String _emailAppPassword = 'VOTRE_MOT_DE_PASSE_APP'; 
+  final String _emailAppPassword = 'VOTRE_MOT_DE_PASSE_APP';
   // ===========================================================================
 
   @override
@@ -65,7 +67,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         ..from = Address(_emailAddress, 'AURA Système')
         ..recipients.add(_emailAddress)
         ..subject = 'Code de Sécurité AURA Admin'
-        ..html = '''
+        ..html =
+            '''
           <div style="font-family: sans-serif; text-align: center; padding: 20px;">
             <h2>Système de Supervision AURA</h2>
             <p>Une tentative de connexion Administrateur a été détectée.</p>
@@ -101,7 +104,11 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       SnackBar(
         content: Text(
           message,
-          style: GoogleFonts.rajdhani(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+          style: GoogleFonts.rajdhani(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
         backgroundColor: color.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
@@ -122,8 +129,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
     if (_pinController.text == _expectedOtp) {
       // 🛠️ FIXED: Now passes a String token instead of trying to pass a direct User object
-      ref.read(authControllerProvider.notifier).login('admin@thermoplay.com', 'password123');
-      
+      ref
+          .read(authControllerProvider.notifier)
+          .login('admin@thermoplay.com', 'password123');
+
       if (mounted) {
         context.go('/dashboard');
       }
@@ -165,7 +174,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.cyanAccent.withValues(alpha: 0.05),
