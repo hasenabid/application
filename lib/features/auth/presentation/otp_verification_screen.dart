@@ -122,7 +122,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
     if (_pinController.text == _expectedOtp) {
       // 🛠️ FIXED: Now passes a String token instead of trying to pass a direct User object
-      ref.read(authControllerProvider.notifier).loginWithRfid('otp_token_admin');
+      ref.read(authControllerProvider.notifier).login('admin@thermoplay.com', 'password123');
       
       if (mounted) {
         context.go('/dashboard');

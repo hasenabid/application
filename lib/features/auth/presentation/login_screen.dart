@@ -18,8 +18,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       TextEditingController(text: 'admin@thermoplay.com');
   final _passwordController = TextEditingController(text: 'password123');
 
+  // 🛠️ ADDED: Trigger the background polling loop when the login screen opens
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authControllerProvider.notifier).startRfidPollingLoop();
+    });
+  }
+
+  // 🛠️ ADDED: Always stop network polling operations if the widget is destroyed
   @override
   void dispose() {
+    ref.read(authControllerProvider.notifier).stopRfidPolling();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -37,7 +48,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen<AsyncValue<User?>>(authControllerProvider, (previous, next) {
       next.whenData((user) {
         if (user != null) {
-          context.go('/dashboard');
+          // 🛠️ FIXED: Stop the background polling loop once authentication succeeds
+          ref.read(authControllerProvider.notifier).stopRfidPolling();
+
+          // 🛠️ FIXED: Redirect cleanly based on user role strings
+          final currentRole = user.role.toUpperCase();
+          if (currentRole == 'ADMIN') {
+            context.go('/admin'); // 🚀 Jump to Admin approvals panel
+          } else {
+            context.go('/dashboard'); // Go to standard telemetry dashboard view
+          }
         }
       });
       next.whenOrNull(
@@ -106,6 +126,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: AppColors.lcdText.withValues(alpha: 0.7),
                           letterSpacing: 1,
                         ),
+                      ),
+                      // 🛠️ VISUAL ANCHOR INDICATOR: Friendly notice indicating badge listener is operating
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 8,
+                            height: 8,
+                            child: CircularProgressIndicator(strokeWidth: 1.5, color: Colors.green),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Lecteur RFID actif...",
+                            style: GoogleFonts.shareTechMono(fontSize: 10, color: Colors.green),
+                          ),
+                        ],
                       ),
                     ],
                   ),
