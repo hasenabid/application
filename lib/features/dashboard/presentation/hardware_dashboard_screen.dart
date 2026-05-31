@@ -597,7 +597,7 @@ class HardwareDashboardScreen extends ConsumerWidget {
           _navButton(context, icon: Icons.dashboard, label: 'Tableau', route: '/dashboard', active: true),
           _navButton(context, icon: Icons.notifications_outlined, label: 'Alertes', route: '/alerts'),
           _navButton(context, icon: Icons.build_outlined, label: 'Maintenance', route: '/maintenance'),
-          _navButton(context, icon: Icons.show_chart, label: 'Historique', route: '/dashboard'),
+          _navButton(context, icon: Icons.move_to_inbox, label: 'Demandes', route: '/admin'),//_navButton(context, icon: Icons.show_chart, label: 'Historique', route: '/dashboard'),
           _navButton(context, icon: Icons.settings_outlined, label: 'Réglages', route: '/settings'),
         ],
       ),

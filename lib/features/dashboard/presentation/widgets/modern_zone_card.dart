@@ -168,48 +168,73 @@ class _ModernZoneCardState extends State<ModernZoneCard>
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              SizedBox(
-                                width: 140,
-                                height: 140,
-                                child: CircularProgressIndicator(
-                                  value:
-                                      widget.zone.currentTemperature /
-                                      200, // assuming 200 is max
-                                  strokeWidth: 8,
-                                  backgroundColor: Colors.white.withValues(
-                                    alpha: 0.05,
-                                  ),
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    _statusColor,
-                                  ),
-                                  strokeCap: StrokeCap.round,
-                                ),
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '${widget.zone.currentTemperature.toInt()}',
-                                    style: GoogleFonts.rajdhani(
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                  Text(
-                                    '°C',
-                                    style: GoogleFonts.rajdhani(
-                                      fontSize: 18,
-                                      color: Colors.white54,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                              // 🛠️ FIXATION : Utilisation de 'Consumer' pour donner un accès direct à 'ref' sans erreur !
+                              Consumer(
+                                builder: (context, ref, child) {
+                                  // On extrait la valeur réelle mise à jour en arrière-plan par notre zonesController
+                                  final zonesData = ref.watch(zonesControllerProvider).valueOrNull;
+                                  double liveTemp = widget.zone.currentTemperature;
+                                  
+                                  if (widget.zone.id == '1' || widget.zone.name.contains('1')) {
+                                    // Si le contrôleur a chargé les nouvelles mesures de l'ESP32, on prend la valeur fraîche de la Zone 1
+                                    if (zonesData != null && zonesData.isNotEmpty) {
+                                      try {
+                                        liveTemp = zonesData.firstWhere((z) => z.id == widget.zone.id).currentTemperature;
+                                      } catch (_) {
+                                        // Repli sécurisé sur la valeur de base de la zone si non trouvée
+                                        liveTemp = widget.zone.currentTemperature;
+                                      }
+                                    }
+                                  }
+
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 140,
+                                        height: 140,
+                                        child: CircularProgressIndicator(
+                                          value: (liveTemp / 200).clamp(0.0, 1.0), // Jauge animée synchronisée en direct !
+                                          strokeWidth: 8,
+                                          backgroundColor: Colors.white.withValues(
+                                            alpha: 0.05,
+                                          ),
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            _statusColor,
+                                          ),
+                                          strokeCap: StrokeCap.round,
+                                        ),
+                                      ),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            '${liveTemp.toInt()}', // 🔥 Grand chiffre central connecté à votre thermocouple !
+                                            style: GoogleFonts.rajdhani(
+                                              fontSize: 48,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                              height: 1.1,
+                                            ),
+                                          ),
+                                          Text(
+                                            '°C',
+                                            style: GoogleFonts.rajdhani(
+                                              fontSize: 18,
+                                              color: Colors.white54,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             ],
                           ),
                         ),
+
 
                         // Right side: Setpoint Controls
                         Expanded(

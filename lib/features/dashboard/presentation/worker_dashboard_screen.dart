@@ -6,9 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../auth/presentation/auth_controller.dart';
 import '../../zones/presentation/zones_controller.dart';
-// 🛠️ CHANGED: Import the correct ThermoplayZone model definition file
-import '../../zones/domain/models/thermoplay_zone.dart'; 
-import '../../zones/presentation/temp_request_screen.dart';
+import '../../zones/domain/models/thermoplay_zone.dart';
 import 'widgets/animated_background.dart';
 import 'widgets/modern_zone_card.dart';
 import 'widgets/voice_assistant_button.dart';
@@ -23,21 +21,14 @@ class WorkerDashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D12),
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.black.withValues(alpha: 0.4),
         elevation: 0,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(color: Colors.black.withValues(alpha: 0.2)),
-          ),
-        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'TABLEAU DE BORD OUVRIER',
+              'TABLEAU DE BORD ADMINISTRATEUR',
               style: GoogleFonts.orbitron(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -45,45 +36,44 @@ class WorkerDashboardScreen extends ConsumerWidget {
                 letterSpacing: 2,
               ),
             ),
-            if (user != null)
-              Text(
-                'Opérateur : ${user.name}',
-                style: GoogleFonts.rajdhani(
-                  fontSize: 14,
-                  color: Colors.white54,
-                  fontWeight: FontWeight.w500,
-                ),
+            // 👑 EN-TÊTE PERSONNALISÉ DEMANDÉ AVEC VOTRE NOM
+            Text(
+              'Superviseur : ${user?.name ?? "Hassen Abid"}',
+              style: GoogleFonts.rajdhani(
+                fontSize: 14,
+                color: Colors.cyanAccent,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
               ),
+            ),
           ],
         ),
         actions: [
-          // Bouton demande de changement de température
+          // 📥 👑 LE BOUTON CYAN LIÉ DYNAMIQUEMENT
           Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.orangeAccent.withValues(alpha: 0.1),
+              color: Colors.cyanAccent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.4)),
+              border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.4)),
             ),
             child: IconButton(
-              icon: const Icon(Icons.thermostat, color: Colors.orangeAccent, size: 20),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (_) => const TempRequestScreen()),
-              ),
-              tooltip: 'Demander changement temp.',
+              icon: const Icon(Icons.move_to_inbox, color: Colors.cyanAccent, size: 20),
+              onPressed: () {
+                context.push('/admin'); // 🚀 Ouvre la liste des demandes des ouvriers !
+              },
+              tooltip: 'Voir les demandes ouvriers',
             ),
           ),
           Container(
-            margin: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
+            margin: const EdgeInsets.only(top: 8, bottom: 8, right: 16),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.white24),
             ),
             child: IconButton(
-              icon: const Icon(Icons.power_settings_new,
-                  color: Colors.redAccent, size: 20),
+              icon: const Icon(Icons.power_settings_new, color: Colors.redAccent, size: 20),
               onPressed: () {
                 ref.read(authControllerProvider.notifier).logout();
                 context.go('/login');
@@ -91,62 +81,128 @@ class WorkerDashboardScreen extends ConsumerWidget {
               tooltip: 'Déconnexion',
             ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: Stack(
         children: [
           const AnimatedBackground(),
           SafeArea(
-            child: zonesState.when(
-              data: (zones) => _buildZonesGrid(context, ref, zones),
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: Colors.cyanAccent),
-              ),
-              error: (e, _) => Center(
-                child: Text('Erreur: $e',
-                    style: const TextStyle(color: Colors.redAccent)),
-              ),
+            child: Column(
+              children: [
+                // 🎛️ SECTION CONTRÔLE GLOBAL DE L'IMAGE CIBLE
+                _buildGlobalControlHeader(),
+                
+                // GRILLE DE SUPERVISION DES ZONES SANS OVERFLOW
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: zonesState.when(
+                      data: (zones) => _buildZonesGrid(context, ref, zones),
+                      loading: () => const Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
+                      error: (e, _) => Center(child: Text('Erreur: $e', style: const TextStyle(color: Colors.redAccent))),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const VoiceAssistantButton(),
         ],
       ),
-      // Bouton flottant pour demande de température
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.orangeAccent,
-        foregroundColor: Colors.black,
-        icon: const Icon(Icons.thermostat),
-        label: Text('Demande temp.',
-            style: GoogleFonts.rajdhani(fontWeight: FontWeight.bold)),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const TempRequestScreen()),
-        ),
+      // 📑 BARRE DE NAVIGATION INFÉRIEURE COMPLÈTE
+      bottomNavigationBar: _buildBottomNav(context),
+    );
+  }
+
+  Widget _buildGlobalControlHeader() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'CONTRÔLE GLOBAL',
+            style: GoogleFonts.orbitron(color: Colors.white70, fontSize: 14, letterSpacing: 1),
+          ),
+          Row(
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange.withValues(alpha: 0.2)),
+                onPressed: () {},
+                child: Text('-1°C TOUT', style: GoogleFonts.rajdhani(color: Colors.orangeAccent, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan.withValues(alpha: 0.2)),
+                onPressed: () {},
+                child: Text('+1°C TOUT', style: GoogleFonts.rajdhani(color: Colors.cyanAccent, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }
 
-  Widget _buildZonesGrid(
-    BuildContext context,
-    WidgetRef ref,
-    List<ThermoplayZone> zones, // 🛠️ FIXED: Parameter changed from List<AuraZone> to match your state data type
-  ) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+  Widget _buildZonesGrid(BuildContext context, WidgetRef ref, List<ThermoplayZone> zones) {
+    final width = MediaQuery.of(context).size.width;
+    int crossAxisCount = width > 900 ? 2 : 1;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: GridView.builder(
-        physics: const BouncingScrollPhysics(),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: isTablet ? 2 : 1,
-          childAspectRatio: isTablet ? 1.2 : 1.3,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
+          crossAxisCount: crossAxisCount,
+          childAspectRatio: 1.45, // Calibré pour afficher l'intégralité des anneaux sans pixel overflow
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
         ),
         itemCount: zones.length,
         itemBuilder: (context, index) {
           return ModernZoneCard(zone: zones[index], ref: ref);
         },
+      ),
+    );
+  }
+
+  Widget _buildBottomNav(BuildContext context) {
+    return Container(
+      color: const Color(0xFF121218),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _navItem(Icons.dashboard, 'Accueil', '/dashboard', true, context),
+          _navItem(Icons.notifications_outlined, 'Alertes', '/alerts', false, context),
+          _navItem(Icons.settings_outlined, 'Réglages', '/settings', false, context),
+          _navItem(Icons.build_outlined, 'Maint.', '/maintenance', false, context),
+          _navItem(Icons.history, 'Historique', '/dashboard', false, context),
+        ],
+      ),
+    );
+  }
+
+  Widget _navItem(IconData icon, String label, String route, bool isActive, BuildContext context) {
+    Color color = isActive ? Colors.cyanAccent : Colors.white54;
+    return InkWell(
+      onTap: () {
+        if (!isActive) context.push(route);
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 4),
+          Text(label, style: GoogleFonts.rajdhani(color: color, fontSize: 12, fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+        ],
       ),
     );
   }
